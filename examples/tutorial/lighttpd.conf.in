@@ -1,0 +1,11 @@
+# Simple FastCGI configuration example (lighttpd.conf)
+server.modules += ("mod_fastcgi")
+server.port = 8080
+server.document-root = "/dev/null" # Or something less black-holed
+fastcgi.server = ( "" =>
+	((
+		"socket" => "@FCGI_SOCK@",
+		"bin-path" => "@FASTCGI_EXEC@",
+		"check-local" => "disable"
+	))
+)
