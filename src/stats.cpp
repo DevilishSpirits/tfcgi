@@ -14,6 +14,7 @@
  */
 #include "stats.hpp"
 #include "connection.hpp"
+#include "request-workers.hpp"
 fcgi::InternalStats fcgi::internal_stats;
 
 fcgi::ConnectionStats::ConnectionStats(fcgi::Connection &connection)
@@ -26,6 +27,10 @@ void fcgi::GlobalStats::update(void)
 {
 	socket_listening = fcgi::internal_stats.socket_listening;
 	quick_shutdown = fcgi::internal_stats.quick_shutdown;
+
+	workers_online = fcgi::worker::workers_online;
+	workers_sleeping = fcgi::worker::workers_sleeping;
+	
 	connections.clear();
 	{
 		std::lock_guard<std::mutex> lock(fcgi::Connection::global_list_mutex);

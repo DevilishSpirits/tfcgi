@@ -53,6 +53,7 @@ namespace fcgi {
 		 */
 		unsigned int socket_insane;
 		ConnectionStats(Connection &connection);
+		ConnectionStats(void) = default;
 	};
 	/** Global statistics 
 	 *
@@ -73,6 +74,15 @@ namespace fcgi {
 		 * True if we are doing a quick_shutdown.
 		 */
 		bool quick_shutdown;
+		
+		/** Number of workers threads
+		 *
+		 */
+		unsigned int workers_online;
+		/** Number of idle workers threads
+		 *
+		 */
+		unsigned int workers_sleeping;
 		
 		/** Connections infos
 		 *
