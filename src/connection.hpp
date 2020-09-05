@@ -104,6 +104,15 @@ namespace fcgi {
 				return send_packet(reinterpret_cast<const char*>(buffer),sizeof(buffer)+contentLength);
 			}
 			
+			template <typename T, class... Args>
+			void send_packet(fcgi::RecType type, uint16_t requestId, Args&&... args) {
+				struct {
+					fcgi::Header header;
+					T body;
+				} packet = {{1,type,htons(requestId),htons(sizeof(T)),0,0},{std::forward<Args>(args)...}};
+				send_packet(reinterpret_cast<char*>(&packet),sizeof(packet));
+			}
+			
 			/** Thread-safe close the  FastCGI listening socket
 			 */
 			static void close_listening_socket(void);
