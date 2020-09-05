@@ -25,6 +25,7 @@ namespace fcgi {
 			
 			static std::atomic<unsigned int> workers_online;
 			static std::atomic<unsigned int> workers_sleeping;
+			static std::atomic<unsigned int> workers_backlog;
 			
 			worker(void) : std::thread(thread_func) {};
 	};

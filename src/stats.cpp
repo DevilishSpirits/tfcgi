@@ -30,6 +30,7 @@ void fcgi::GlobalStats::update(void)
 
 	workers_online = fcgi::worker::workers_online;
 	workers_sleeping = fcgi::worker::workers_sleeping;
+	workers_backlog = fcgi::worker::workers_backlog;
 	
 	connections.clear();
 	{

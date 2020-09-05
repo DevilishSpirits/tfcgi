@@ -83,6 +83,10 @@ namespace fcgi {
 		 *
 		 */
 		unsigned int workers_sleeping;
+		/** Number of request in the backlog
+		 *
+		 */
+		unsigned int workers_backlog;
 		
 		/** Connections infos
 		 *

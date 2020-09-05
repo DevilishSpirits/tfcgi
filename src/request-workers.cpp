@@ -22,9 +22,11 @@ static std::queue<std::reference_wrapper<fcgi::Request>> queue;
 
 std::atomic<unsigned int> fcgi::worker::workers_online = 0;
 std::atomic<unsigned int> fcgi::worker::workers_sleeping = 0;
+std::atomic<unsigned int> fcgi::worker::workers_backlog = 0;
 
 void fcgi::worker::push_request(Request &request)
 {
+	fcgi::worker::workers_backlog++;
 	std::lock_guard<std::mutex> lock(queue_mutex);
 	queue.push(std::ref(request));
 	queue_bell.notify_one();
@@ -37,6 +39,7 @@ static fcgi::Request& pop_request(void)
 	}
 	fcgi::Request& request = queue.front();
 	queue.pop();
+	fcgi::worker::workers_backlog--;
 	return request;
 }
 void fcgi::worker::thread_func(void)
