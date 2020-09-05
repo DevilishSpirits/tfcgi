@@ -71,9 +71,25 @@ void fcgi::Request::handle_packet(std::unique_ptr<fcgi::ipacket> &a_packet)
 		} break;
 		case fcgi::RecType::PARAMS: {
 			if (params_deserializer) {
-				if (params_deserializer->feed(a_packet)) {
-					state = fcgi::Request::State::PENDING;
-					fcgi::worker::push_request(*this);
+				try {
+					if (params_deserializer->feed(a_packet)) {
+						state = fcgi::Request::State::PENDING;
+						fcgi::worker::push_request(*this);
+						params_deserializer.reset();
+					}
+				} catch (fcgi::NVP::Deserializer::pair_size_error &e) {
+					// Cancel the request
+					cerr << e.what() << " Raise fcgi::limits::nvp_max_pair_size or fix the fat parameter.\n";
+					cerr.close();
+					cout.close();
+					params_deserializer.reset();
+					struct {
+						fcgi::Header header;
+						fcgi::EndRequestBody body;
+					} end_body_packet = {{1,fcgi::RecType::END_REQUEST,htons(requestId),htons(sizeof(fcgi::EndRequestBody)),0,0},{htonl(0X9020816E),fcgi::EndRequestProtoStatus::REQUEST_COMPLETE,0,0,0}};
+					connection.send_packet(reinterpret_cast<char*>(&end_body_packet),sizeof(end_body_packet));
+					state = fcgi::Request::State::READY;
+					connection.request_actives--;
 				}
 			} else {
 				// TODO The server is going crazy !

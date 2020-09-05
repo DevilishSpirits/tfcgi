@@ -18,6 +18,9 @@
 #include <arpa/inet.h>
 #include <stdexcept>
 
+// 64kiB is very large but still less than 4GB
+size_t fcgi::limits::nvp_max_pair_size = 0xFFFF;
+
 /** We have a keyval pair ready for use
  */
 inline void fcgi::NVP::Deserializer::handle_keyval(char *buffer)
@@ -102,6 +105,10 @@ bool fcgi::NVP::Deserializer::feed(std::unique_ptr<ipacket> &packet)
 			case NVP::Deserializer::WILL_READ_BUFFER:
 				name_len  = ntohl(name_len);
 				value_len = ntohl(value_len);
+				if (name_len + value_len > effective_max_pair_size()) {
+					// TODO syslog that
+					throw  NVP::Deserializer::pair_size_error("Deserializing a FastCGI NVP exceeding max_pair_size ("+std::to_string(name_len)+'+'+std::to_string(value_len)+'<'+std::to_string(effective_max_pair_size())+").");
+				}
 				if (len >= name_len + value_len) {
 					// 😀️ Zero userspace copy !
 					handle_keyval(data);

@@ -15,6 +15,7 @@
 #pragma once
 #include "fcgi/request.hpp"
 #include "fcgi/stats.hpp"
+#include "fcgi/limits.hpp"
 
 #if __cplusplus < 201703L
 	#warning You compiler does not seem to support C++17

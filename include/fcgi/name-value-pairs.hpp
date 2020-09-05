@@ -18,6 +18,8 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <stdexcept>
+#include "limits.hpp"
 namespace fcgi {
 	class ipacket;
 	/** FastCGI Name-Value Pairs
@@ -83,6 +85,24 @@ namespace fcgi {
 				 * \return True if all datas have been read
 				 */
 				bool feed(std::unique_ptr<ipacket> &packet);
+				/** Maximum Name-Value pair size
+				 *
+				 * It's a per instance override off fcgi::limits::nvp_max_pair_size, if
+				 * set it completely replace the global limit.
+				 * If zero, use the global limit fcgi::limits::nvp_max_pair_size.
+				 */
+				size_t max_pair_size;
+				/** Compute effective maximum Name-Value pair size
+				 */
+				size_t effective_max_pair_size(void) const {
+					if (max_pair_size)
+						return max_pair_size;
+					else return fcgi::limits::nvp_max_pair_size;
+				}
+				/** Name-Value Pair size limit exceeded
+				 *
+				 */
+				typedef std::runtime_error pair_size_error;
 			};
 			/** Trivial deserializer to fcgi::Deserializer::map
 			 *
