@@ -83,11 +83,7 @@ void fcgi::Request::handle_packet(std::unique_ptr<fcgi::ipacket> &a_packet)
 					cerr.close();
 					cout.close();
 					params_deserializer.reset();
-					struct {
-						fcgi::Header header;
-						fcgi::EndRequestBody body;
-					} end_body_packet = {{1,fcgi::RecType::END_REQUEST,htons(requestId),htons(sizeof(fcgi::EndRequestBody)),0,0},{htonl(0X9020816E),fcgi::EndRequestProtoStatus::REQUEST_COMPLETE,0,0,0}};
-					connection.send_packet(reinterpret_cast<char*>(&end_body_packet),sizeof(end_body_packet));
+					connection.send_packet<fcgi::EndRequestBody>(fcgi::RecType::END_REQUEST,requestId,htonl(0X9020816E),fcgi::EndRequestProtoStatus::REQUEST_COMPLETE,0,0,0);
 					state = fcgi::Request::State::READY;
 					connection.request_actives--;
 				}
@@ -107,11 +103,7 @@ void fcgi::Request::handle_packet(std::unique_ptr<fcgi::ipacket> &a_packet)
 			// TODO
 		} break;
 		default: {
-			struct {
-				fcgi::Header header;
-				fcgi::UnknownTypeBody body;
-			} end_type_packet = {{1,fcgi::RecType::UNKNOWN_TYPE,htons(requestId),htons(sizeof(fcgi::UnknownTypeBody)),0,0},{packet.header().type,0,0,0,0,0,0,0}};
-			connection.send_packet(reinterpret_cast<char*>(&end_type_packet),sizeof(end_type_packet));
+			connection.send_packet<fcgi::UnknownTypeBody>(fcgi::RecType::UNKNOWN_TYPE,requestId,packet.header().type,0,0,0,0,0,0,0);
 			//syslog(LOG_WARNING,"conn%d:Unknow packet type %d for request %d",connection.fd,packet.header().type,requestId);
 		} break;
 	}

@@ -96,11 +96,7 @@ void fcgi::Connection::thread_func(std::list<fcgi::Connection>::iterator iterato
 				connection.get_value_handler.handle_packet(packet);
 			} break;
 			default: {
-				struct {
-					fcgi::Header header;
-					fcgi::UnknownTypeBody body;
-				} end_type_packet = {{1,fcgi::RecType::UNKNOWN_TYPE,htons(requestId),htons(sizeof(fcgi::UnknownTypeBody)),0,0},{packet->header().type,0,0,0,0,0,0,0}};
-				connection.send_packet(reinterpret_cast<char*>(&end_type_packet),sizeof(end_type_packet));
+				connection.send_packet<fcgi::UnknownTypeBody>(fcgi::RecType::UNKNOWN_TYPE,requestId,packet->header().type,0,0,0,0,0,0,0);
 				syslog(LOG_WARNING,"conn%d:Unknow packet type %d (requestId 0)",connection.fd,packet->header().type);
 			} break;
 		}
