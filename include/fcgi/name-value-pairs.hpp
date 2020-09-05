@@ -91,7 +91,7 @@ namespace fcgi {
 				 * set it completely replace the global limit.
 				 * If zero, use the global limit fcgi::limits::nvp_max_pair_size.
 				 */
-				size_t max_pair_size;
+				size_t max_pair_size = 0;
 				/** Compute effective maximum Name-Value pair size
 				 */
 				size_t effective_max_pair_size(void) const {
