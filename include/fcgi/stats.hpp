@@ -26,7 +26,34 @@
 #pragma once
 #include <ostream>
 #include <atomic>
+#include <vector>
 namespace fcgi {
+	class Connection;
+	/** Global statistics 
+	 *
+	 * This structure contain multiple stats about a connection.
+	 */
+	struct ConnectionStats {
+		/** An ID
+		 *
+		 * This id uniquely identify a connection.
+		 * \note Currently id are reused since this is the socket fd.
+		 */
+		unsigned int id;
+		/** Number of active requests
+		 *
+			 * This is the number of active requests on the FastCGI protocol. It's
+			 * increased when receiving a BEGIN_REQUEST packet and decreased when we
+			 * END_REQUEST a packet.
+		 */
+		unsigned int active_requests;
+		/** Socket input is sane
+		 *
+		 * \see fcgi::Connection::socket_insane
+		 */
+		unsigned int socket_insane;
+		ConnectionStats(Connection &connection);
+	};
 	/** Global statistics 
 	 *
 	 * This global structure contain multiple stats about the FastCGI framework.
@@ -46,6 +73,11 @@ namespace fcgi {
 		 * True if we are doing a quick_shutdown.
 		 */
 		bool quick_shutdown;
+		
+		/** Connections infos
+		 *
+		 */
+		std::vector<ConnectionStats> connections;
 		void update(void);
 	};
 }

@@ -27,11 +27,13 @@ namespace fcgi {
 	class ipacket;
 	class Request;
 	class worker;
+	class ConnectionStats;
 	class Connection {
 		private:
 			friend ipacket;
 			friend Request;
 			friend worker;
+			friend ConnectionStats;
 			/** Socket output mutex
 			 *
 			 * This mutex ensure isolation of the sending side of the socket to avoid

@@ -13,10 +13,23 @@
  * limitations under the License.
  */
 #include "stats.hpp"
+#include "connection.hpp"
 fcgi::InternalStats fcgi::internal_stats;
 
+fcgi::ConnectionStats::ConnectionStats(fcgi::Connection &connection)
+{
+	id = connection.fd;
+	active_requests = connection.request_actives;
+	socket_insane = connection.socket_insane;
+}
 void fcgi::GlobalStats::update(void)
 {
 	socket_listening = fcgi::internal_stats.socket_listening;
 	quick_shutdown = fcgi::internal_stats.quick_shutdown;
+	connections.clear();
+	{
+		std::lock_guard<std::mutex> lock(fcgi::Connection::global_list_mutex);
+		for (fcgi::Connection& connection: fcgi::Connection::global_list)
+			connections.emplace_back(connection);
+	}
 }
