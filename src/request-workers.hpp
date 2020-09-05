@@ -23,6 +23,9 @@ namespace fcgi {
 		public:
 			static void push_request(Request &request);
 			
+			static std::atomic<unsigned int> workers_online;
+			static std::atomic<unsigned int> workers_sleeping;
+			
 			worker(void) : std::thread(thread_func) {};
 	};
 };

@@ -20,6 +20,9 @@ static std::mutex              queue_mutex;
 static std::condition_variable queue_bell;
 static std::queue<std::reference_wrapper<fcgi::Request>> queue;
 
+std::atomic<unsigned int> fcgi::worker::workers_online = 0;
+std::atomic<unsigned int> fcgi::worker::workers_sleeping = 0;
+
 void fcgi::worker::push_request(Request &request)
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
@@ -38,9 +41,12 @@ static fcgi::Request& pop_request(void)
 }
 void fcgi::worker::thread_func(void)
 {
+	workers_online++;
 	while (internal_stats.socket_listening || internal_stats.socket_active) {
 		// Pop!
+		workers_sleeping++;
 		fcgi::Request& request = pop_request();
+		workers_sleeping--;
 		
 		// Prepare the end-request packet
 		struct {
@@ -88,4 +94,5 @@ void fcgi::worker::thread_func(void)
 		request.connection.send_packet(reinterpret_cast<char*>(&end_request_packet),sizeof(end_request_packet)); // TODO Error checks
 		request.connection.request_actives--;
 	}
+	workers_online--;
 }
