@@ -1,0 +1,19 @@
+# Simple FastCGI configuration example
+server.modules += ("mod_fastcgi")
+server.port = 8080
+server.document-root = "@EXAMPLE_ROOT@/static"
+index-file.names = ("index.html")
+
+mimetype.assign = (
+	".html" => "text/html", 
+)
+$REQUEST_HEADER["Accept"] == "application/json" {
+	fastcgi.server = ( "" =>
+		((
+			"socket" => "@EXAMPLE_BUILD_ROOT@/fcgi.sock",
+			"bin-path" => "@EXAMPLE_BUILD_ROOT@/example-stats",
+			"check-local" => "disable",
+			"max-procs" => 1
+		))
+	)
+}
