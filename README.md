@@ -25,4 +25,4 @@ FastCGI manner, you can use it.
 You should stop the process with a `SIGTERM` or a `SIGQUIT`, currently it's like
 `SIGKILL` but custom behavior may be implemented in a future version.
 The framework itself can be `SIGKILL`ed with no problem (altough I don't he like
-you like being killed this way... and you ?).
+being killed this way... and you ?).
